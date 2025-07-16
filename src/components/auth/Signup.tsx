@@ -4,7 +4,7 @@ import React from 'react';
 import { Flex, TextField, Button, Text, Link } from '@radix-ui/themes';
 import { Label } from '@radix-ui/react-label';
 
-export default function RegisterPage() {
+function Signup() {
   return (
     <form>
       <Flex direction="column" gap="4" maxWidth="300px">
@@ -51,3 +51,4 @@ export default function RegisterPage() {
   );
 }
 
+export default Signup;

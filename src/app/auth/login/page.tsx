@@ -1,17 +1,18 @@
-import { Button } from '@radix-ui/themes';
-import { BookmarkIcon } from '@radix-ui/react-icons';
-import React from 'react';
+import { Container, Card, Heading, Flex } from '@radix-ui/themes';
+import SigninForm from '@/components/auth/SigninForm';
 
 function LoginPage() {
   return (
-    <div style={{ padding: '2rem' }}>
-      <h1 style={{ marginBottom: '1rem' }}>LoginPage</h1>
-      <Button variant="solid" color="indigo">
-        <BookmarkIcon style={{ marginRight: '8px' }} />
-        Iniciar sesión
-      </Button>
-    </div>
+    <Container size="1" height="100%" className="p-3 md:p-0 bg-red-200">
+      <Flex className="h-screen bg-blue-100 w-full items-center">
+        <Card className="w-full">
+          <Heading>Sign In</Heading>
+          <SigninForm/>
+        </Card>
+      </Flex>
+    </Container>
   );
 }
 
 export default LoginPage;
+

@@ -4,30 +4,21 @@ import React from 'react';
 import { Flex, TextField, Button, Text, Link } from '@radix-ui/themes';
 import { Label } from '@radix-ui/react-label';
 
-export default function RegisterPage() {
+function SigninForm() {
   return (
     <form>
       <Flex direction="column" gap="4" maxWidth="300px">
         <Flex direction="column" gap="1">
-          <Label htmlFor="name">Nombre completo</Label>
-          <TextField.Root
-            id="name"
-            placeholder="Tu nombre completo"
-            variant="surface"
-          />
-        </Flex>
-
-        <Flex direction="column" gap="1">
-          <Label htmlFor="email">Correo electrónico</Label>
+          <Label htmlFor="email">Email</Label>
           <TextField.Root
             id="email"
-            placeholder="email@dominio.com"
+            placeholder="email@domain.com"
             variant="surface"
           />
         </Flex>
 
         <Flex direction="column" gap="1">
-          <Label htmlFor="password">Contraseña</Label>
+          <Label htmlFor="password">Password</Label>
           <TextField.Root
             id="password"
             type="password"
@@ -37,17 +28,23 @@ export default function RegisterPage() {
         </Flex>
 
         <Button type="submit" variant="solid" color="indigo">
-          Crear cuenta
+          Sign In
         </Button>
 
-        <Text size="2" align="center">
-          ¿Ya tienes una cuenta?{' '}
-          <Link href="/auth/login" weight="bold" color="indigo">
-            Iniciar sesión
+        {/* Link en una línea horizontal */}
+        <Flex justify="between" align="center">
+          <Text size="2">Don't have an Account?</Text>
+          <Link href="/auth/register" weight="bold" color="indigo">
+            Sign Up
           </Link>
-        </Text>
+        </Flex>
       </Flex>
     </form>
   );
 }
+
+export default SigninForm;
+
+
+
 
