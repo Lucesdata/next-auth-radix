@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Flex, TextField, Button, Text, Link } from '@radix-ui/themes';
 import { Label } from '@radix-ui/react-label';
 import { useForm } from 'react-hook-form';
@@ -15,11 +15,37 @@ function SignupForm() {
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors },
   } = useForm<FormData>();
 
-  const onSubmit = (data: FormData) => {
-    console.log('Datos enviados:', data);
+  const [message, setMessage] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  const onSubmit = async (data: FormData) => {
+    try {
+      const res = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+
+      const result = await res.json();
+
+      if (!res.ok) {
+        setError(result.message || 'Error al registrar');
+        setMessage(null);
+      } else {
+        setMessage('✅ Registro exitoso');
+        setError(null);
+        reset();
+      }
+    } catch (err) {
+      setError('❌ Error de red');
+      setMessage(null);
+    }
   };
 
   return (
@@ -74,6 +100,17 @@ function SignupForm() {
         <Button type="submit" variant="solid" color="indigo">
           Crear cuenta
         </Button>
+
+        {message && (
+          <Text size="2" color="green" align="center">
+            {message}
+          </Text>
+        )}
+        {error && (
+          <Text size="2" color="red" align="center">
+            {error}
+          </Text>
+        )}
 
         <Text size="2" align="center">
           ¿Ya tienes una cuenta?{' '}

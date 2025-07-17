@@ -1,9 +1,11 @@
 'use client';
 
 import React from 'react';
-import { useForm } from 'react-hook-form';
 import { Flex, TextField, Button, Text, Link } from '@radix-ui/themes';
 import { Label } from '@radix-ui/react-label';
+import { useForm } from 'react-hook-form';
+import { signIn } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 
 type FormData = {
   email: string;
@@ -11,35 +13,47 @@ type FormData = {
 };
 
 function SigninForm() {
+  const router = useRouter();
+
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm<FormData>();
 
-  const onSubmit = (data: FormData) => {
-    console.log('Datos enviados:', data);
+  const onSubmit = async (data: FormData) => {
+    const result = await signIn('credentials', {
+      redirect: false,
+      email: data.email,
+      password: data.password,
+    });
+
+    if (result?.ok) {
+      router.push('/'); // Redirige al Home u otra página protegida
+    } else {
+      alert('Credenciales inválidas');
+    }
   };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <Flex direction="column" gap="4" maxWidth="300px">
         <Text as="p" weight="bold" size="5" mb="2">
-          Iniciar sesión
+          Sign In
         </Text>
 
         {/* Email */}
         <Flex direction="column" gap="1">
-          <Label htmlFor="email">Correo electrónico</Label>
+          <Label htmlFor="email">Email</Label>
           <TextField.Root
             id="email"
-            placeholder="email@dominio.com"
+            placeholder="email@domain.com"
             variant="surface"
             {...register('email', {
-              required: 'El correo es obligatorio',
+              required: 'Email requerido',
               pattern: {
                 value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                message: 'Correo no válido',
+                message: 'Formato de email inválido',
               },
             })}
           />
@@ -52,17 +66,17 @@ function SigninForm() {
 
         {/* Password */}
         <Flex direction="column" gap="1">
-          <Label htmlFor="password">Contraseña</Label>
+          <Label htmlFor="password">Password</Label>
           <TextField.Root
             id="password"
             type="password"
             placeholder="********"
             variant="surface"
             {...register('password', {
-              required: 'La contraseña es obligatoria',
+              required: 'Contraseña requerida',
               minLength: {
                 value: 6,
-                message: 'Mínimo 6 caracteres',
+                message: 'Debe tener al menos 6 caracteres',
               },
             })}
           />
@@ -75,14 +89,14 @@ function SigninForm() {
 
         {/* Botón */}
         <Button type="submit" variant="solid" color="indigo">
-          Iniciar sesión
+          Sign In
         </Button>
 
-        {/* Link a registro */}
+        {/* Link a Signup */}
         <Flex justify="between" align="center">
-          <Text size="2">¿No tienes cuenta?</Text>
+          <Text size="2">Don't have an Account?</Text>
           <Link href="/auth/register" weight="bold" color="indigo">
-            Regístrate
+            Sign Up
           </Link>
         </Flex>
       </Flex>
