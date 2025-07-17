@@ -1,19 +1,47 @@
 // src/app/page.tsx
-'use client'
+'use client';
 
-import { useSession } from "next-auth/react";
+import React from 'react';
+import { useSession } from 'next-auth/react';
+import { Flex, Text, Button } from '@radix-ui/themes';
+import NextLink from 'next/link';
+import SignoutButton from '@/components/auth/SignoutButton';
 
-export default function Home() {
-  const { data: session } = useSession();
+export default function HomePage() {
+  const { data: session, status } = useSession();
+
+  // Mientras NextAuth determina el estado de la sesión
+  if (status === 'loading') {
+    return (
+      <Flex p="4">
+        <Text>Cargando sesión...</Text>
+      </Flex>
+    );
+  }
+
+  const userEmail = session?.user?.email ?? 'Invitado';
 
   return (
-    <div>
-      <h1>Home</h1>
+    <Flex direction="column" gap="4" p="4" align="start">
+      <Text as="p" size="6" weight="bold">
+        Home
+      </Text>
+
       {session ? (
-        <p>Bienvenido, {session.user?.email}</p>
+        <>
+          <Text>Bienvenido, {userEmail}</Text>
+          <SignoutButton />
+        </>
       ) : (
-        <p>No has iniciado sesión</p>
+        <>
+          <Text>No has iniciado sesión.</Text>
+          <NextLink href="/auth/login">
+            <Button variant="solid" color="indigo">
+              Iniciar sesión
+            </Button>
+          </NextLink>
+        </>
       )}
-    </div>
+    </Flex>
   );
 }

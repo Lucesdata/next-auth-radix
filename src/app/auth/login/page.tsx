@@ -10,7 +10,7 @@ export default function LoginPage() {
       <Flex className="h-screen w-full items-center justify-center">
         <Card className="w-full max-w-sm p-5">
           <Heading as="h1" size="5" mb="4">
-            Sign In
+            Iniciar sesión
           </Heading>
           <SigninForm />
         </Card>

@@ -1,22 +1,42 @@
 import { NextResponse } from "next/server";
-
-// Usuario simulado (normalmente esto vendría de una base de datos)
-const user = {
-  id: "1",
-  name: "John Doe",
-  email: "john@example.com",
-  password: "123456", // En un entorno real, la contraseña estaría encriptada
-};
+import { prisma } from "@/lib/prisma";
+import bcrypt from "bcrypt";
 
 export async function POST(req: Request) {
-  const body = await req.json();
-  const { email, password } = body;
+  try {
+    const body = await req.json();
+    const { email, password } = body;
 
-  if (email === user.email && password === user.password) {
-    return NextResponse.json(user);
+    if (!email || !password) {
+      return new NextResponse("Faltan campos requeridos", { status: 400 });
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { email },
+    });
+
+    if (!user || !user.password) {
+      return new NextResponse("Usuario no encontrado", { status: 404 });
+    }
+
+    const passwordMatch = await bcrypt.compare(password, user.password);
+
+    if (!passwordMatch) {
+      return new NextResponse("Contraseña incorrecta", { status: 401 });
+    }
+
+    return NextResponse.json({
+      message: "Inicio de sesión exitoso",
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+      },
+    });
+  } catch (error) {
+    console.error("Error en login:", error);
+    return new NextResponse("Error en el servidor", { status: 500 });
   }
-
-  return new NextResponse("Credenciales inválidas", { status: 401 });
 }
 
 export async function GET() {
@@ -24,3 +44,4 @@ export async function GET() {
     status: 405,
   });
 }
+

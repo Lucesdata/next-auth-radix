@@ -4,7 +4,6 @@ import React from 'react';
 import { Flex, TextField, Button, Text, Link } from '@radix-ui/themes';
 import { Label } from '@radix-ui/react-label';
 import { useForm } from 'react-hook-form';
-import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 
 type FormData = {
@@ -22,16 +21,32 @@ function SigninForm() {
   } = useForm<FormData>();
 
   const onSubmit = async (data: FormData) => {
-    const result = await signIn('credentials', {
-      redirect: false,
-      email: data.email,
-      password: data.password,
-    });
+    try {
+      const response = await fetch('/api/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
 
-    if (result?.ok) {
-      router.push('/'); // Redirige al Home u otra página protegida
-    } else {
-      alert('Credenciales inválidas');
+      const result = await response.json();
+
+      if (response.ok) {
+        // Puedes guardar el usuario o token en localStorage, context, etc.
+        console.log('Usuario autenticado:', result.user);
+
+        // Ejemplo: guardar en localStorage
+        localStorage.setItem('user', JSON.stringify(result.user));
+
+        // Redirigir
+        router.push('/');
+      } else {
+        alert(result.message || 'Credenciales inválidas');
+      }
+    } catch (error) {
+      console.error('Error en login:', error);
+      alert('Ocurrió un error en el servidor');
     }
   };
 
@@ -105,6 +120,7 @@ function SigninForm() {
 }
 
 export default SigninForm;
+
 
 
 
