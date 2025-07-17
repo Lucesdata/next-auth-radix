@@ -4,6 +4,7 @@ import React from 'react';
 import { Flex, TextField, Button, Text, Link } from '@radix-ui/themes';
 import { Label } from '@radix-ui/react-label';
 import { useForm } from 'react-hook-form';
+import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 
 type FormData = {
@@ -17,36 +18,25 @@ function SigninForm() {
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitting },
+    setError,
   } = useForm<FormData>();
 
   const onSubmit = async (data: FormData) => {
-    try {
-      const response = await fetch('/api/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
+    const result = await signIn('credentials', {
+      redirect: false,
+      email: data.email,
+      password: data.password,
+    });
+
+    if (result?.ok) {
+      router.push('/'); // Home o dashboard
+    } else {
+      // NextAuth nos da mensaje genérico. Si quieres granular, intercepta error.
+      setError('password', {
+        type: 'manual',
+        message: result?.error || 'Credenciales inválidas',
       });
-
-      const result = await response.json();
-
-      if (response.ok) {
-        // Puedes guardar el usuario o token en localStorage, context, etc.
-        console.log('Usuario autenticado:', result.user);
-
-        // Ejemplo: guardar en localStorage
-        localStorage.setItem('user', JSON.stringify(result.user));
-
-        // Redirigir
-        router.push('/');
-      } else {
-        alert(result.message || 'Credenciales inválidas');
-      }
-    } catch (error) {
-      console.error('Error en login:', error);
-      alert('Ocurrió un error en el servidor');
     }
   };
 
@@ -54,15 +44,15 @@ function SigninForm() {
     <form onSubmit={handleSubmit(onSubmit)}>
       <Flex direction="column" gap="4" maxWidth="300px">
         <Text as="p" weight="bold" size="5" mb="2">
-          Sign In
+          Iniciar sesión
         </Text>
 
         {/* Email */}
         <Flex direction="column" gap="1">
-          <Label htmlFor="email">Email</Label>
+          <Label htmlFor="email">Correo electrónico</Label>
           <TextField.Root
             id="email"
-            placeholder="email@domain.com"
+            placeholder="email@dominio.com"
             variant="surface"
             {...register('email', {
               required: 'Email requerido',
@@ -81,7 +71,7 @@ function SigninForm() {
 
         {/* Password */}
         <Flex direction="column" gap="1">
-          <Label htmlFor="password">Password</Label>
+          <Label htmlFor="password">Contraseña</Label>
           <TextField.Root
             id="password"
             type="password"
@@ -102,16 +92,20 @@ function SigninForm() {
           )}
         </Flex>
 
-        {/* Botón */}
-        <Button type="submit" variant="solid" color="indigo">
-          Sign In
+        <Button
+          type="submit"
+          variant="solid"
+          color="indigo"
+          disabled={isSubmitting}
+        >
+          {isSubmitting ? 'Ingresando...' : 'Iniciar sesión'}
         </Button>
 
-        {/* Link a Signup */}
+        {/* Link a registro */}
         <Flex justify="between" align="center">
-          <Text size="2">Don't have an Account?</Text>
+          <Text size="2">¿No tienes cuenta?</Text>
           <Link href="/auth/register" weight="bold" color="indigo">
-            Sign Up
+            Regístrate
           </Link>
         </Flex>
       </Flex>
@@ -120,8 +114,3 @@ function SigninForm() {
 }
 
 export default SigninForm;
-
-
-
-
-
